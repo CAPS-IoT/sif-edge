@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sif-edge-service
+  namespace: sif-edge
+spec:
+  type: NodePort  # Using NodePort for external access on a port range
+  ports:
+  - port: 80
+    targetPort: 8000
+    nodePort: 30008  # You can choose any port in the range 30000–32767
+  selector:
+    app: sif-edge

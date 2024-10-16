@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sif-edge-deployment
+  namespace: sif-edge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sif-edge
+  template:
+    metadata:
+      labels:
+        app: sif-edge
+    spec:
+      containers:
+      - name: sif-edge-container
+        image: python:3.12-slim  # Python base image pulled from a public repository
+        command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - mountPath: "/app"  # This is the path inside the container
+          name: app-volume
+      volumes:
+      - name: app-volume
+        hostPath:
+          path: "/home/iot-user/sif-edge"  # Adjust to your project folder's path on the host machine
