@@ -16,7 +16,7 @@ spec:
       containers:
       - name: sif-edge-container
         image: python:3.12-slim  # Python base image pulled from a public repository
-        command: ["/bin/sh", "-c", "pip install uvicorn fastapi && uvicorn main:app --host 0.0.0.0 --port 8000"]  # Install and run
+        command: ["/bin/sh", "-c", "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000"]  # Install and run
         ports:
         - containerPort: 8000
         volumeMounts:
@@ -26,3 +26,11 @@ spec:
       - name: app-volume
         hostPath:
           path: "/home/iot-user/sif-edge"  # Adjust to your project folder's path on the host machine
+      livenessProbe:
+      - exec:
+          command:
+          - cat
+          - /app/main.py
+        initialDelaySeconds: 30  # Adjust this based on your needs
+        periodSeconds: 10  # Adjust this based on your needs
+
