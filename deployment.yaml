@@ -26,11 +26,4 @@ spec:
       - name: app-volume
         hostPath:
           path: "/home/iot-user/sif-edge"  # Adjust to your project folder's path on the host machine
-      livenessProbe:
-      - exec:
-          command:
-          - cat
-          - /app/main.py
-        initialDelaySeconds: 30  # Adjust this based on your needs
-        periodSeconds: 10  # Adjust this based on your needs
 
