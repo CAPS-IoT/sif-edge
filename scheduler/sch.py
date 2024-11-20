@@ -51,6 +51,27 @@ class Scheduler(ABC):
         with open(path, "wb") as chk:
             pickle.dump(self.function_loop, chk)
 
+    def status_sch(self):
+        status = []
+        self.lock.acquire(True)
+        for fn in self.function_loop:
+            fn_status = {}
+            fn_status["subs"] = fn.subs
+            fn_status["last_invoke"] = fn.last_invoke
+            fn_status["events"] = []
+            for rdy in fn.ready:
+                evts = {"ready": [], "waiting": []}
+                for idx, evt in enumerate(rdy):
+                    if evt is None:
+                        evts["waiting"].append(fn.subs[idx])
+                    else:
+                        evts["ready"].append(fn.subs[idx])
+                fn_status["events"].append(evts)
+            fn_status["name"] = fn.name
+            status.append(fn_status)
+        self.lock.release()
+        return status
+
     def submit_event(self):
         pass
 
@@ -65,14 +86,9 @@ class Scheduler(ABC):
             self.lock.acquire(blocking=True)
             for fn in self.function_loop:
                 try:
-                    print("---- FUNCTIONS ----")
                     ready_inv = fn.update_event(event)
-                    pprint(fn, depth=10, indent=6, compact=True)
-                    print(f"//// FUNCTIONS-{ready_inv} ////")
                     if ready_inv:
                         self.generate_invocation(fn)
-                    pprint(fn, depth=10, indent=6, compact=True)
-                    print("++++ FUNCTIONS ++++")
                 except Exception as errf:
                     print(f"Error during generating invocations {errf}")
                     traceback.print_exc()

@@ -7,7 +7,7 @@ app = FastAPI()
 
 dispatcher = Dispatcher()
 sch = Scheduler(
-    dispatcher=dispatcher.return_event_loop(), base_path=".")
+    dispatcher=dispatcher.return_event_loop())
 
 dispatcher.wait_loop()
 sch.wait_loop()
@@ -27,4 +27,9 @@ def register_fn(fn_data: BaseFunction):
     fn = Function(fn_data.name, fn_data.subs, fn_data.url,
                   fn_data.mock, fn_data.method)
     sch.register_fn(fn)
-    pass
+    return
+
+
+@app.get("/api/status")
+def status_fn():
+    return sch.status_sch()

@@ -1,10 +1,9 @@
-import json
+import pytz
 import urllib3
 
 from abc import ABC
-from pprint import pprint, pformat
 from typing import Dict, Optional, Any, List
-from datetime import datetime, timezone
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -93,6 +92,7 @@ class Function(ABC):
         self.ready: List[List[str]] = []
         self.last_pos = None
         self.mock = mock
+        self.last_invoke = None
         self.reset_fn()
 
     def __repr__(self):
@@ -117,9 +117,7 @@ class Function(ABC):
 
         for idx, evt_tr in enumerate(self.ready):
             if evt.name in evt_tr:
-                print(f"-- processing {evt_tr}")
                 if None not in evt_tr:
-                    print("---- checking value?")
                     self.last_pos = idx
                 evts = [None for _ in range(len(self.subs))]
                 evts[self.subs.index(evt.name)] = evt.name
@@ -134,7 +132,6 @@ class Function(ABC):
                 if None not in self.ready[-1]:
                     self.last_pos = len(self.ready) - 1
                     return True
-                print(f"the last position is {self.last_pos}")
                 return (self.last_pos is not None) or False
             else:
                 jdx = self.subs.index(evt.name)
@@ -171,10 +168,6 @@ class Function(ABC):
             self.last_pos = None
 
     def generate_invocation(self) -> Invocation:
-        print(f"---- EVENTS-{self.name} ----")
-        pprint(self.events, depth=10, indent=8, compact=True)
-        print("//// EVENTS ////")
-        print(f"Accessing value at {self.last_pos}")
         kwargs = dict()
         for k, v in self.events.items():
             vals = dict()
@@ -185,6 +178,6 @@ class Function(ABC):
 
         inv = Invocation(self.ref, self.method, self.mock, json=kwargs)
         self.reset_fn()
-        pprint(self.events, depth=10, indent=4, compact=True)
-        print(f"++++ EVENTS-{self.name} ++++")
+        self.last_invoke = int(datetime.now(
+            pytz.timezone("Europe/Berlin")).timestamp()*1000)
         return inv
