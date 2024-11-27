@@ -1,3 +1,3 @@
-from .base import Invocation, Function, Event, EventRequest, BaseFunction
+from .base import Invocation, Function, Event, EventRequest, BaseFunction, DeleteFunction
 
-__all__ = ["Invocation", "Function", "Event", "EventRequest"]
+__all__ = ["Invocation", "Function", "Event", "EventRequest", "DeleteFunction"]

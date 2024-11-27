@@ -20,6 +20,10 @@ class EventRequest(BaseModel):
     data: Optional[Dict[Any, Any]] | Optional[Any] = None
 
 
+class DeleteFunction(BaseModel):
+    name: str
+
+
 class BaseFunction(BaseModel):
     name: str
     subs: List[str]

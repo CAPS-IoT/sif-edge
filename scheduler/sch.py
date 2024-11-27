@@ -21,15 +21,18 @@ class Scheduler(ABC):
         self.dispatcher: Queue[common.Invocation] = dispatcher
         self.restore_chk(os.path.join(base_path, chk_name))
         self.lock = Lock()
+        self.fn_names = []
 
     def return_event_loop(self) -> Queue:
         return self.event_loop
 
     def register_fn(self, fn: common.Function):
         self.lock.acquire(blocking=True)
-        self.function_loop.append(fn)
-        path = os.path.join(self.base_path, self.chk_name)
-        self.handle_chk(path)
+        if fn.name not in self.fn_names:
+            self.function_loop.append(fn)
+            self.fn_names.append(fn.name)
+            path = os.path.join(self.base_path, self.chk_name)
+            self.handle_chk(path)
         self.lock.release()
 
     def restore_chk(self, path: str):
@@ -39,6 +42,19 @@ class Scheduler(ABC):
             print("The following functions have been restored:")
             for fn in self.function_loop:
                 print(fn.print())
+
+    def delete_fn(self, name: str):
+        self.lock.acquire(True)
+        del_idx = -1
+        for idx, fn in enumerate(self.function_loop):
+            if fn.name == name:
+                del_idx = idx
+
+        if del_idx >= 0:
+            del self.function_loop[del_idx]
+            path = os.path.join(self.base_path, self.chk_name)
+            self.handle_chk(path)
+        self.lock.release()
 
     def generate_invocation(self, fn: common.Function):
         path = os.path.join(self.base_path, self.chk_name)

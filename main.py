@@ -1,7 +1,7 @@
 from scheduler import Scheduler
 from dispatcher import Dispatcher
 from fastapi import FastAPI
-from common import EventRequest, Event, BaseFunction, Function
+from common import EventRequest, Event, BaseFunction, Function, DeleteFunction
 
 app = FastAPI()
 
@@ -27,6 +27,12 @@ def register_fn(fn_data: BaseFunction):
     fn = Function(fn_data.name, fn_data.subs, fn_data.url,
                   fn_data.mock, fn_data.method)
     sch.register_fn(fn)
+    return
+
+
+@app.delete("/api/function")
+def delete_fn(fn_data: DeleteFunction):
+    sch.delete_fn(fn_data.name)
     return
 
 
