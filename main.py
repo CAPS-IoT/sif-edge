@@ -9,7 +9,7 @@ app = FastAPI()
 
 dispatcher = Dispatcher()
 sch = Scheduler(
-    dispatcher=dispatcher.return_event_loop(), base_path=".")
+    dispatcher=dispatcher.return_event_loop())
 
 dispatcher.wait_loop()
 sch.wait_loop()
