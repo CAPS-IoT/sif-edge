@@ -52,6 +52,7 @@ class Scheduler(ABC):
 
         if del_idx >= 0:
             del self.function_loop[del_idx]
+            self.fn_names.remove(name)
             path = os.path.join(self.base_path, self.chk_name)
             self.handle_chk(path)
         self.lock.release()
