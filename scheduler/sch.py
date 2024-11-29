@@ -28,13 +28,23 @@ class Scheduler(ABC):
     def return_event_loop(self) -> Queue:
         return self.event_loop
 
+    def __reg_fn(self, fn: common.Function):
+        logger.info(f"Registering function with name {fn.name}")
+        self.function_loop.append(fn)
+        self.fn_names.append(fn.name)
+        path = os.path.join(self.base_path, self.chk_name)
+        self.handle_chk(path)
+
     def register_fn(self, fn: common.Function):
         self.lock.acquire(blocking=True)
         if fn.name not in self.fn_names:
-            self.function_loop.append(fn)
-            self.fn_names.append(fn.name)
-            path = os.path.join(self.base_path, self.chk_name)
-            self.handle_chk(path)
+            self.__reg_fn(fn)
+        else:
+            logger.warn(
+                f"Function with name {fn.name} already exists... Recreating...")
+            self.__del_fn(fn.name)
+            self.__reg_fn(fn)
+            logger.info(f"Function with name {fn.name} has been recreated!")
         self.lock.release()
 
     def restore_chk(self, path: str):
@@ -46,8 +56,7 @@ class Scheduler(ABC):
                 self.fn_names.append(fn.name)
                 logger.info(fn.print())
 
-    def delete_fn(self, name: str):
-        self.lock.acquire(True)
+    def __del_fn(self, name: str):
         del_idx = -1
         for idx, fn in enumerate(self.function_loop):
             if fn.name == name:
@@ -58,6 +67,10 @@ class Scheduler(ABC):
             self.fn_names.remove(name)
             path = os.path.join(self.base_path, self.chk_name)
             self.handle_chk(path)
+
+    def delete_fn(self, name: str):
+        self.lock.acquire(True)
+        self.__del_fn(name)
         self.lock.release()
 
     def generate_invocation(self, fn: common.Function):
