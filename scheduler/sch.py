@@ -1,5 +1,4 @@
 from abc import ABC
-from pprint import pprint
 from typing import List
 from threading import Thread, Lock
 from multiprocessing import Queue
@@ -8,20 +7,23 @@ import os
 import pickle
 import common
 import traceback
+import logging
+
+logger = logging.getLogger("fastapi_cli")
 
 
 class Scheduler(ABC):
     def __init__(self, dispatcher: "Queue[common.Invocation]",
                  base_path: str = "/data", chk_name: str = "scheduler.pkl"):
-        super(Scheduler, self).__init__()
         self.chk_name = chk_name
         self.base_path = base_path
         self.function_loop: List[common.Function] = []
         self.event_loop: Queue[common.Event] = Queue()
         self.dispatcher: Queue[common.Invocation] = dispatcher
-        self.restore_chk(os.path.join(base_path, chk_name))
         self.lock = Lock()
         self.fn_names = []
+        super(Scheduler, self).__init__()
+        self.restore_chk(os.path.join(base_path, chk_name))
 
     def return_event_loop(self) -> Queue:
         return self.event_loop
@@ -41,7 +43,8 @@ class Scheduler(ABC):
                 self.function_loop = pickle.load(chk)
             print("The following functions have been restored:")
             for fn in self.function_loop:
-                print(fn.print())
+                self.fn_names.append(fn.name)
+                logger.info(fn.print())
 
     def delete_fn(self, name: str):
         self.lock.acquire(True)
@@ -107,8 +110,6 @@ class Scheduler(ABC):
                     if ready_inv:
                         self.generate_invocation(fn)
                 except Exception as errf:
-                    print(f"Error during generating invocations {errf}")
+                    logger.info(f"Error during generating invocations {errf}")
                     traceback.print_exc()
-                finally:
-                    print(("\n\n"))
             self.lock.release()

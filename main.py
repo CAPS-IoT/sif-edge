@@ -1,13 +1,15 @@
-from scheduler import Scheduler
-from dispatcher import Dispatcher
-from fastapi import FastAPI
 from common import EventRequest, Event, BaseFunction, Function, DeleteFunction
+from fastapi import FastAPI
+from dispatcher import Dispatcher
+from scheduler import Scheduler
+import builtins
+import traceback
 
 app = FastAPI()
 
 dispatcher = Dispatcher()
 sch = Scheduler(
-    dispatcher=dispatcher.return_event_loop())
+    dispatcher=dispatcher.return_event_loop(), base_path=".")
 
 dispatcher.wait_loop()
 sch.wait_loop()

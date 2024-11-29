@@ -1,20 +1,19 @@
 import pytz
 import urllib3
+import logging
 
 from abc import ABC
 from typing import Dict, Optional, Any, List
 from datetime import datetime
 from pydantic import BaseModel
 
-
 from .status import EventStatus
 
+logger = logging.getLogger("fastapi_cli")
 
-# class BaseEvent(ABC):
-#     def __init__(self):
-#         super(BaseEvent, self).__init__()
+logging.getLogger("requests").setLevel(logging.DEBUG)
 
-# Change to EventRequest
+
 class EventRequest(BaseModel):
     name: str
     data: Optional[Dict[Any, Any]] | Optional[Any] = None
@@ -40,9 +39,6 @@ class Event(ABC):
         self.status: EventStatus = EventStatus.CREATED
         self.timestamp: str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
 
-    def __repr__(self):
-        return pformat(vars(self), indent=4)
-
 
 class Invocation(ABC):
     """
@@ -60,13 +56,15 @@ class Invocation(ABC):
     def invoke(self):
         if not self.mock:
             # TODO: Add retries method and provide feedback with function name
-            http = urllib3.PoolManager()
-            res = http.request(self.method, self.url, **self.kwargs)
-            if res.status != 200:
-                print(
+            if self.method == "GET":
+                self.kwargs = {}
+
+            res = urllib3.request(self.method, self.url, **self.kwargs)
+            if res.status >= 300:
+                logger.warn(
                     f"failure to invoke remote resource because: [{res.reason}]")
-        print("the invocation has been dispatched...")
-        pass
+        logger.info("invocation has been dispatched")
+        return
 
 
 class RemoteInvocation(Invocation):
@@ -167,7 +165,7 @@ class Function(ABC):
                 if len(self.events[topic]) > self.last_pos:
                     self.events[topic].pop(self.last_pos)
 
-            print(
+            logger.info(
                 f"removing {lst} from the ready queue for function {self.name}")
             self.last_pos = None
 
@@ -184,4 +182,5 @@ class Function(ABC):
         self.reset_fn()
         self.last_invoke = int(datetime.now(
             pytz.timezone("Europe/Berlin")).timestamp()*1000)
+
         return inv

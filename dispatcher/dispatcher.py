@@ -2,7 +2,10 @@ from abc import ABC
 from threading import Thread
 from multiprocessing import Queue
 
+import logging
 import common
+
+logger = logging.getLogger("fastapi_cli")
 
 
 class Dispatcher(ABC):
@@ -25,5 +28,5 @@ class Dispatcher(ABC):
 
     def _wait_loop(self):
         while (event := self.event_loop.get(True)):
-            print("event incoming for processing")
+            logger.info("event incoming for processing")
             event.invoke()
