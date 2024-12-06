@@ -9,8 +9,9 @@ import common
 import traceback
 import logging
 
-logger = logging.getLogger("fastapi_cli")
+logger = logging.getLogger("uvicorn.error")
 
+logging.getLogger("requests").setLevel(logging.INFO)
 
 class Scheduler(ABC):
     def __init__(self, dispatcher: "Queue[common.Invocation]",
@@ -40,7 +41,7 @@ class Scheduler(ABC):
         if fn.name not in self.fn_names:
             self.__reg_fn(fn)
         else:
-            logger.warn(
+            logger.warning(
                 f"Function with name {fn.name} already exists... Recreating...")
             self.__del_fn(fn.name)
             self.__reg_fn(fn)

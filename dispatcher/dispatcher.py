@@ -5,7 +5,8 @@ from multiprocessing import Queue
 import logging
 import common
 
-logger = logging.getLogger("fastapi_cli")
+logger = logging.getLogger("uvicorn.error")
+logging.getLogger("requests").setLevel(logging.INFO)
 
 
 class Dispatcher(ABC):

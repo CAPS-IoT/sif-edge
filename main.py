@@ -1,5 +1,7 @@
-from common import EventRequest, Event, BaseFunction, Function, DeleteFunction
 from fastapi import FastAPI
+
+from common import EventRequest, Event, BaseFunction, Function, DeleteFunction
+
 from dispatcher import Dispatcher
 from scheduler import Scheduler
 import builtins

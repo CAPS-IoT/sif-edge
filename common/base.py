@@ -9,10 +9,7 @@ from pydantic import BaseModel
 
 from .status import EventStatus
 
-logger = logging.getLogger("fastapi_cli")
-
-logging.getLogger("requests").setLevel(logging.DEBUG)
-
+logger = logging.getLogger("uvicorn.error")
 
 class EventRequest(BaseModel):
     name: str
