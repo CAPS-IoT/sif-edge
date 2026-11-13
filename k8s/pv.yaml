@@ -14,6 +14,6 @@ spec:
                                       # To ensure **only** one container gets access to it,
                                       # you can use `ReadWriteOnce`. 
   hostPath:
-    path: "/data/wise2024/sif-edge"   # The path in the local host to store data.
+    path: "/data/wise2026/sif-edge"   # The path in the local host to store data.
                                       # You can also use other types of volumes.
                                       # For more, please read the documentation
