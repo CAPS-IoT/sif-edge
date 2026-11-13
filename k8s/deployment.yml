@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: sif-edge
-          image: gerndt/scheduler:latest
+          image: <image>
           imagePullPolicy: "Always"
           ports:
             - containerPort: 9000
