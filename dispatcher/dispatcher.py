@@ -9,10 +9,12 @@ logger = logging.getLogger("fastapi_cli")
 
 
 class Dispatcher(ABC):
-    def __init__(self):
+    def __init__(self, metrics_queue: Queue, weighs):
         super(Dispatcher, self).__init__()
 
         self.event_loop: Queue[common.Invocation] = Queue()
+        self.metrics_queue = metrics_queue
+        self.weights = weighs
 
     def return_event_loop(self) -> "Queue[common.Invocation]":
         """
@@ -29,4 +31,6 @@ class Dispatcher(ABC):
     def _wait_loop(self):
         while (event := self.event_loop.get(True)):
             logger.info("event incoming for processing")
-            event.invoke()
+            thr = Thread(target=event.invoke, args=(
+                self.metrics_queue, self.weights,))
+            thr.start()
